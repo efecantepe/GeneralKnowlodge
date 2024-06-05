@@ -3,6 +3,8 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:general_knowlodge/create_room_page.dart';
+import 'package:general_knowlodge/home_page.dart';
 import 'package:general_knowlodge/login.dart';
 
 void main() {
@@ -22,10 +24,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue
       ),
 
-      initialRoute: "/login",
+      initialRoute: "/homePage",
 
       routes: {
-        "/login" : (context) => const LoginPage()
+        "/login" : (context) => const LoginPage(),
+        "/homePage" : (context) => const HomePage(),
+        "/createRoom" : (context) => CreateRoomPage()
       },
     );
   }
