@@ -28,6 +28,10 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
 
     return Scaffold(
 
+      appBar: AppBar(
+        backgroundColor: AppColors.backgroundColor,
+      ),
+
       backgroundColor: AppColors.backgroundColor,
 
       body: Padding(
@@ -87,9 +91,20 @@ class _CreateRoomPageState extends State<CreateRoomPage> {
                   ),
                   contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 ),
+              ),
+
+              SizedBox(height: 30,),
+
+              ElevatedButton(
+                style: ButtonStyle(
+
+                  backgroundColor: MaterialStatePropertyAll(AppColors.loginStartColor),
+                  foregroundColor: MaterialStatePropertyAll(Colors.black)
+
+                ),
+                onPressed: () => print("Create Room"), 
+                child: Text("Create Room")
               )
-        
-          
             ],
           
           ),

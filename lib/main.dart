@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:general_knowlodge/create_room_page.dart';
 import 'package:general_knowlodge/home_page.dart';
 import 'package:general_knowlodge/login.dart';
+import 'package:general_knowlodge/question_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,12 +25,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue
       ),
 
-      initialRoute: "/homePage",
+      initialRoute: "/questionPage",
 
       routes: {
         "/login" : (context) => const LoginPage(),
         "/homePage" : (context) => const HomePage(),
-        "/createRoom" : (context) => CreateRoomPage()
+        "/createRoom" : (context) => CreateRoomPage(),
+        "/questionPage" : (context) => QuestionPage()
       },
     );
   }
