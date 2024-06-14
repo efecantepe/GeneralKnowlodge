@@ -1,36 +1,99 @@
-
-
 // ignore_for_file: prefer_const_constructors
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:general_knowlodge/app_colors.dart';
 import 'package:general_knowlodge/helper.dart';
 
+
+Stream<String> periodicQuestionStream(String input, Duration period) async*{
+  for(int i = 0; i < input.length; i++){
+    yield input[i];
+    await Future.delayed(period);
+  }
+}
+
+List<Map<String, dynamic>> questions = [
+
+  {
+
+    "question" : "Istanbulu Kim Fethetti?",
+    "choices" : <String> [
+
+      "Yıldırım Beyazid",
+      "Fatih Sultan Mehmed",
+      "Kanuni Sultan Süleyman",
+      "2. Abdulhamid"
+
+    ]
+  },
+
+  {
+
+    "question" : "Türkiye Cumhuriyetini Kim Kurdu?",
+
+     "choices" : <String> [
+
+      "Bülent Ecevit",
+      "Efe Can Tepe",
+      "Mustafa Kemal Atatürk",
+      "Celal Bayar"
+
+    ],
+  },
+
+  {
+    "question" : "Hangisi Bir Avrupa Devleti Değildir?",
+
+     "choices" : <String> [
+      "Fransa",
+      "Almanya",
+      "İspanya",
+      "Fas"
+    ],
+  },
+
+];
+
 class QuestionPage extends StatefulWidget{
 
-  const QuestionPage({super.key});
+  
+  QuestionPage({super.key});
 
   @override
   State<QuestionPage> createState() => _QuestionPageState();
 }
 
 class _QuestionPageState extends State<QuestionPage> {
+
+  final Stream<String> questionStream = periodicQuestionStream(questions[0]["question"], Duration(milliseconds: 50));
+  late StreamSubscription<String> questionSubscription;
+  String question = "";
+
+
+  @override
+  void initState(){
+
+    super.initState();
+    questionSubscription = questionStream.listen((char) { 
+      setState(() {
+        question += char;
+      });
+    });
+
+  }
+
   
-  late int questionNumber = 1;
-  late String question = "Istanbulu Kim Fethetti?";
-  late List<String> choices = [
-
-    "Yıldırım Beyazid",
-    "Fatih Sultan Mehmed",
-    "Kanuni Sultan Süleyman",
-    "2. Abdulhamid"
-
-  ];
+  int currentQuestionIndex = 0;
 
   late bool isChoiceEnabled = false;
 
   @override
   Widget build(BuildContext context){
+
+    int questionNumber = currentQuestionIndex + 1;
+    //String question = questions[currentQuestionIndex]["question"]!;
+    List<String> choices = questions[currentQuestionIndex]["choices"] as List<String>;
 
     final double height = MediaQuery.sizeOf(context).height;
     final double width = MediaQuery.sizeOf(context).width;
@@ -67,7 +130,7 @@ class _QuestionPageState extends State<QuestionPage> {
               Column(
                 children: [
                   for(String choice in choices) 
-                    choiceButtonWidget(choice),
+                    choiceButtonWidget(""),
                 ],
               ),
 
@@ -84,8 +147,16 @@ class _QuestionPageState extends State<QuestionPage> {
                   child: ElevatedButton(
                     onPressed: () {
 
+                      if(!questionSubscription.isPaused){
+                        questionSubscription.pause();
+                      }
+
+                      else{
+                        questionSubscription.resume();
+                      }
+
                       setState(() {
-                        isChoiceEnabled = true;
+                        isChoiceEnabled = !isChoiceEnabled;
                       });
 
                     }, 
@@ -101,17 +172,13 @@ class _QuestionPageState extends State<QuestionPage> {
 
                     child: const Text("BAS", 
                       style: TextStyle(
-
                         fontSize: 42,
                         fontWeight: FontWeight.bold
-
                       ),
                     )
                   ),
                 ),
               )
-
-              
             ],
           ),
         ),
