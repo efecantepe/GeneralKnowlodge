@@ -25,7 +25,9 @@ List<Map<String, dynamic>> questions = [
       "Kanuni Sultan Süleyman",
       "2. Abdulhamid"
 
-    ]
+    ],
+
+    "answer" : "Fatih Sultan Mehmed"
   },
 
   {
@@ -40,6 +42,9 @@ List<Map<String, dynamic>> questions = [
       "Celal Bayar"
 
     ],
+
+    "answer" : "Mustafa Kemal Atatürk"
+
   },
 
   {
@@ -51,6 +56,9 @@ List<Map<String, dynamic>> questions = [
       "İspanya",
       "Fas"
     ],
+
+    "answer" : "Fas"
+
   },
 
 ];
@@ -65,35 +73,73 @@ class QuestionPage extends StatefulWidget{
 }
 
 class _QuestionPageState extends State<QuestionPage> {
+  
+  void handleAnswer(String answer){
 
+    print("Answer is: ${answer}");
+
+
+
+  }
+
+
+  Future<void> setChoices() async {
+
+    Completer<void> questionCompleter = Completer<void>();
+
+    questionSubscription = questionStream.listen((char) { 
+        setState(() {
+          question += char;
+        });
+    },
+
+      onDone: () {
+        questionCompleter.complete();
+      } 
+    );
+
+    await questionCompleter.future;
+
+    for (int a = 0; a < (questions[0]["choices"] as List<String>).length; a++) {
+      Completer<void> completer = Completer<void>();
+      Stream<String> choiceStream = periodicQuestionStream((questions[0]["choices"] as List<String>)[a], Duration(milliseconds: 30));
+      
+      choiceSub = choiceStream.listen((char) {
+        setState(() {
+          choices[a] += char;
+        });
+      }, onDone: () {
+        completer.complete();
+      });
+
+      await completer.future;
+    }
+  }
+
+  int currentQuestionIndex = 0;
+  late bool isChoiceEnabled = false;
   final Stream<String> questionStream = periodicQuestionStream(questions[0]["question"], Duration(milliseconds: 50));
+  List<String> choices = (questions[0]["choices"] as List<String>).map((e) => "").toList();
+
   late StreamSubscription<String> questionSubscription;
+  late StreamSubscription<String> choiceSub;
   String question = "";
 
 
   @override
-  void initState(){
+  void initState() {
 
     super.initState();
-    questionSubscription = questionStream.listen((char) { 
-      setState(() {
-        question += char;
-      });
-    });
-
+    
+    setChoices();
   }
 
-  
-  int currentQuestionIndex = 0;
-
-  late bool isChoiceEnabled = false;
 
   @override
   Widget build(BuildContext context){
 
     int questionNumber = currentQuestionIndex + 1;
     //String question = questions[currentQuestionIndex]["question"]!;
-    List<String> choices = questions[currentQuestionIndex]["choices"] as List<String>;
 
     final double height = MediaQuery.sizeOf(context).height;
     final double width = MediaQuery.sizeOf(context).width;
@@ -130,7 +176,7 @@ class _QuestionPageState extends State<QuestionPage> {
               Column(
                 children: [
                   for(String choice in choices) 
-                    choiceButtonWidget(""),
+                    choiceButtonWidget(choice),
                 ],
               ),
 
@@ -153,6 +199,14 @@ class _QuestionPageState extends State<QuestionPage> {
 
                       else{
                         questionSubscription.resume();
+                      }
+
+                      if(!choiceSub.isPaused){
+                        choiceSub.pause();
+                      }
+
+                      else{
+                        choiceSub.resume();
                       }
 
                       setState(() {
@@ -192,7 +246,7 @@ class _QuestionPageState extends State<QuestionPage> {
     return Column(
       children: [
         ElevatedButton( 
-                        onPressed: isChoiceEnabled ? () => print("Pressed ${choice}") : null,
+                        onPressed: isChoiceEnabled ? () => handleAnswer(choice) : null,
                         style: ElevatedButton.styleFrom(
                           disabledBackgroundColor: AppColors.choiceBackgroundDisenabled,
                           backgroundColor: AppColors.choiceBackgroundEnabled  ,
